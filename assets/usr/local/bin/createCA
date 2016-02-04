@@ -1,0 +1,62 @@
+#!/bin/bash
+
+function print_help {
+cat <<EOF
+       OPENVPN CA CERT and KEY GENERATION
+===============================================
+Usage:
+docker run sneakyscampi/createCA (OPTIONS)
+
+Options:
+        -d | --domain           DomainName
+	-c | --configpath	Configuration Path ie /opt/ssl
+_______________________________________________
+by SneakyScampi
+EOF
+}
+
+if [ $# -eq 0 ]; then
+        print_help; exit 0
+fi
+
+
+DEBUG=false
+OPTS=`getopt -o d:c: --long domain:configpath: -n 'parse-options' -- "$@"`
+if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
+
+echo #OPTS
+eval set -- "$OPTS"
+while true; do
+  case "$1" in
+        -h | --help )           print_help; exit 0; shift ;;
+        -d | --domain )         DOMAINNAME="$2"; shift; shift ;;
+	-c | --configpath )	CONFIGPATH="$2"; shift; shift ;;
+        -- ) shift; break ;;
+        * ) break ;;
+  esac
+done
+
+if [ -z "$CONFIGPATH" ] || [ -z "$DOMAINNAME" ]; then
+	print_help
+	exit 1
+fi
+
+cd $CONFIGPATH
+rm -rf $CONFIGPATH/*
+mkdir -p ca server client1 && cd ca && touch index.txt
+cp -pr /usr/local/share/openvpn/* $CONFIGPATH
+
+CAPATH="$CONFIGPATH/ca"
+echo "CA PATH: $CAPATH"
+sed -i.bak 's|$CA_DIR|'$CAPATH'|g' $CONFIGPATH/ca/ca-sign.cnf
+
+cd $CONFIGPATH/ca
+sed -e "s/\$DOMAIN/$DOMAINNAME/g" ca.cnf.template > ca.cnf
+openssl req -new -config ca.cnf -keyout ca.key -out ca.req
+openssl ca -batch -config ca-sign.cnf -extensions X509_ca -days 3650 -create_serial -selfsign -updatedb -keyfile ca.key -in ca.req -out ca.crt
+chmod 400 ca.key
+chmod 444 ca.crt
+cp $CONFIGPATH/ca/ca.crt $CONFIGPATH/server
+cp $CONFIGPATH/ca/ca.crt $CONFIGPATH/
+
+echo $DOMAINNAME > $CONFIGPATH/ca/DOMAIN.txt
