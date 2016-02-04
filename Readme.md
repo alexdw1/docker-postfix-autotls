@@ -11,10 +11,14 @@ You need to configure a volume for the SSL certs.  /opt/ssl is used by default.
 - --hostname 	-	This configures main.cf
 - --mydest	-	Configure main.cf
 
-###Example
+### Example
 >docker run -p 1025:25 --hostname smtp -it -v /opt/testdomain1.com:/opt/ssl alexdw1/postfix-autotls --hostname smtp.testdomain1.com --debug --mydest=testdomain1.com
 
-###Easy startup script
-> ./run-smtp.testdomain1.com.sh
-> or
-> ./run-smtp.testdomain2.com.sh
+### Easy startup script
+```sh
+$./run-smtp.testdomain1.com.sh
+```
+or
+```sh
+$./run-smtp.testdomain2.com.sh
+```
