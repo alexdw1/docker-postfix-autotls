@@ -5,12 +5,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y apt-utils
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y postfix rsyslog postfix-policyd-spf-python iptables vim
+RUN apt-get install -y postfix rsyslog postfix-policyd-spf-python iptables git vim
 
 # Copy Assets
 COPY assets/openssl-templates /usr/local/share/openvpn/
 COPY assets/etc /etc/
-COPY assets/usr/local/bin /usr/local/bin/
+
+RUN git clone https://github.com/alexdw1/openssl-tools.git /tmp/openssl-tools && cd /tmp/openssl-tools && ./install.sh && rm -rf /tmp/openssl-tools
 
 # add/modify services in /etc/postfix/master.cf
 

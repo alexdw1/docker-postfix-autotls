@@ -58,6 +58,9 @@ postconf -e "myorigin = $MYDESTINATION"
 
 chown postfix /var/spool/postfix/private
 
+
+#_____________GENERATE SSL__________________________
+
 if [ ! -d "$CONFIGPATH/ca" ]; then
 
 	echo "Creating Certificate Authority (CA)"
