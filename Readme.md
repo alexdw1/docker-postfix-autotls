@@ -1,4 +1,4 @@
-# Docker-Postfix-autotls
+# dcker-postfix-autotls
 
 This is work in progress.  This is just a basic postfix MTA install with create CA Authority and TLS Keys and Certs on the fly.
 
